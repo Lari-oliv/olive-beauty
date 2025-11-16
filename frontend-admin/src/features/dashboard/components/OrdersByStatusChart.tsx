@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   PieChart,
   Pie,
@@ -6,31 +12,34 @@ import {
   ResponsiveContainer,
   Tooltip,
   Legend,
-} from 'recharts'
-import { OrdersByStatus, OrderStatus } from '@/shared/types'
+} from "recharts";
+import { OrdersByStatus, OrderStatus } from "@/shared/types";
 
 interface OrdersByStatusChartProps {
-  data: OrdersByStatus[]
-  isLoading?: boolean
+  data: OrdersByStatus[];
+  isLoading?: boolean;
 }
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: '#f59e0b', // amber
-  PROCESSING: '#3b82f6', // blue
-  SENT: '#8b5cf6', // purple
-  DELIVERED: '#10b981', // green
-  CANCELLED: '#ef4444', // red
-}
+  PENDING: "hsl(var(--primary))",
+  PROCESSING: "hsl(var(--primary))",
+  SENT: "hsl(var(--primary))",
+  DELIVERED: "hsl(var(--primary))",
+  CANCELLED: "hsl(var(--primary))",
+};
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDING: 'Pendente',
-  PROCESSING: 'Em Processamento',
-  SENT: 'Enviado',
-  DELIVERED: 'Entregue',
-  CANCELLED: 'Cancelado',
-}
+  PENDING: "Pendente",
+  PROCESSING: "Em Processamento",
+  SENT: "Enviado",
+  DELIVERED: "Entregue",
+  CANCELLED: "Cancelado",
+};
 
-export function OrdersByStatusChart({ data, isLoading }: OrdersByStatusChartProps) {
+export function OrdersByStatusChart({
+  data,
+  isLoading,
+}: OrdersByStatusChartProps) {
   if (isLoading) {
     return (
       <Card>
@@ -44,7 +53,7 @@ export function OrdersByStatusChart({ data, isLoading }: OrdersByStatusChartProp
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
@@ -60,14 +69,16 @@ export function OrdersByStatusChart({ data, isLoading }: OrdersByStatusChartProp
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
+
+  const primaryColor = "hsl(var(--primary))";
 
   const chartData = data.map((item) => ({
     name: STATUS_LABELS[item.status],
     value: item.count,
-    color: STATUS_COLORS[item.status],
-  }))
+    color: primaryColor,
+  }));
 
   return (
     <Card>
@@ -94,12 +105,16 @@ export function OrdersByStatusChart({ data, isLoading }: OrdersByStatusChartProp
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
-            <Legend />
+            {/* <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
+            /> */}
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
-

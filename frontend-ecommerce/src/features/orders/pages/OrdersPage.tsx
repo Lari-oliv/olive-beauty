@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { ordersApi } from '@/api/endpoints/orders'
 import { Order, OrderStatus } from '@/shared/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
@@ -27,6 +27,7 @@ const statusLabels: Record<OrderStatus, string> = {
 }
 
 export function OrdersPage() {
+  const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -133,8 +134,14 @@ export function OrdersPage() {
                     Total: {formatCurrency(order.total)}
                   </p>
                 </div>
-                <Button asChild variant="outline">
-                  <Link to={`/orders/${order.id}`}>Ver Detalhes</Link>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    console.log('Navigating to order:', order.id)
+                    navigate({ to: '/orders/$orderId', params: { orderId: order.id } })
+                  }}
+                >
+                  Ver Detalhes
                 </Button>
               </div>
             </CardContent>

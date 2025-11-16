@@ -19,7 +19,7 @@ import { StatCardSkeleton } from "@/shared/components/Skeleton";
 import { ErrorState } from "@/shared/components/ErrorState";
 
 export function DashboardPage() {
-  const [period, setPeriod] = useState(7);
+  const [period, setPeriod] = useState(15);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenueData, setRevenueData] = useState<TimeSeriesData[]>([]);
   const [ordersData, setOrdersData] = useState<TimeSeriesData[]>([]);

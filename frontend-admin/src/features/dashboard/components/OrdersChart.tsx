@@ -1,19 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from 'recharts'
-import { TimeSeriesData } from '@/shared/types'
+} from "recharts";
+import { TimeSeriesData } from "@/shared/types";
 
 interface OrdersChartProps {
-  data: TimeSeriesData[]
-  isLoading?: boolean
+  data: TimeSeriesData[];
+  isLoading?: boolean;
 }
 
 export function OrdersChart({ data, isLoading }: OrdersChartProps) {
@@ -30,7 +35,7 @@ export function OrdersChart({ data, isLoading }: OrdersChartProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
@@ -46,13 +51,18 @@ export function OrdersChart({ data, isLoading }: OrdersChartProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+  };
+
+  const primaryColor = "hsl(var(--primary))";
 
   return (
     <Card>
@@ -63,28 +73,38 @@ export function OrdersChart({ data, isLoading }: OrdersChartProps) {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px", fill: "currentColor" }}
+              axisLine={false}
+              tickLine={false}
             />
-            <YAxis style={{ fontSize: '12px' }} />
+            <YAxis
+              style={{ fontSize: "12px", fill: "currentColor" }}
+              axisLine={false}
+              tickLine={false}
+            />
             <Tooltip
-              formatter={(value: number) => [`${value} pedidos`, 'Quantidade']}
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
+              formatter={(value: number) => [`${value} pedidos`, "Quantidade"]}
               labelFormatter={(label) => `Data: ${formatDate(label)}`}
             />
-            <Legend />
+            {/* <Legend /> */}
             <Bar
               dataKey="count"
-              fill="hsl(var(--primary))"
               name="Pedidos"
+              fill={primaryColor}
               radius={[4, 4, 0, 0]}
+              maxBarSize={40}
             />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
-

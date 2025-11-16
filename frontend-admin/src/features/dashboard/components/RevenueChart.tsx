@@ -1,20 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import {
-  LineChart,
-  Line,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
+import {
+  Area,
+  AreaChart,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
-} from 'recharts'
-import { TimeSeriesData } from '@/shared/types'
-import { formatCurrency } from '@/shared/lib/utils'
+} from "recharts";
+import { TimeSeriesData } from "@/shared/types";
+import { formatCurrency } from "@/shared/lib/utils";
 
 interface RevenueChartProps {
-  data: TimeSeriesData[]
-  isLoading?: boolean
+  data: TimeSeriesData[];
+  isLoading?: boolean;
 }
 
 export function RevenueChart({ data, isLoading }: RevenueChartProps) {
@@ -31,7 +35,7 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
@@ -47,13 +51,18 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+  };
+
+  const primaryColor = "hsl(var(--primary))";
 
   return (
     <Card>
@@ -63,35 +72,52 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="gradientPrimary" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={primaryColor} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={primaryColor} stopOpacity={0.1} />
+              </linearGradient>
+            </defs>
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px", fill: "currentColor" }}
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis
-              tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-              style={{ fontSize: '12px' }}
+              tickFormatter={(value) => {
+                if (value >= 1000) {
+                  return `R$ ${(value / 1000).toFixed(0)}k`;
+                }
+                return `R$ ${value.toFixed(0)}`;
+              }}
+              style={{ fontSize: "12px", fill: "currentColor" }}
+              axisLine={false}
+              tickLine={false}
+              padding={{ top: 10, bottom: 10 }}
             />
             <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
               formatter={(value: number) => formatCurrency(value)}
               labelFormatter={(label) => `Data: ${formatDate(label)}`}
             />
-            <Legend />
-            <Line
+            <Area
               type="monotone"
               dataKey="revenue"
-              stroke="hsl(var(--primary))"
+              stroke={primaryColor}
+              fill="url(#gradientPrimary)"
               strokeWidth={2}
               name="Receita"
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
             />
-          </LineChart>
+          </AreaChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
-

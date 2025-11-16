@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useRequireAuth } from '@/shared/hooks/useRequireAuth'
 import { OrdersPage } from '@/features/orders/pages/OrdersPage'
 
@@ -8,6 +8,8 @@ export const Route = createFileRoute('/orders')({
 
 function OrdersPageWrapper() {
   const { isAuthenticated, isLoading } = useRequireAuth()
+  const matchRoute = useMatchRoute()
+  const isOrderDetail = matchRoute({ to: '/orders/$orderId' })
 
   if (isLoading) {
     return (
@@ -21,6 +23,11 @@ function OrdersPageWrapper() {
     return null // Will redirect via useRequireAuth
   }
 
-  return <OrdersPage />
+  return (
+    <>
+      {!isOrderDetail && <OrdersPage />}
+      <Outlet />
+    </>
+  )
 }
 

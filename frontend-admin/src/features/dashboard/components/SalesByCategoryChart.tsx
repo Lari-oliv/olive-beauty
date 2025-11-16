@@ -1,23 +1,31 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from 'recharts'
-import { SalesByCategory } from '@/shared/types'
-import { formatCurrency } from '@/shared/lib/utils'
+} from "recharts";
+import { SalesByCategory } from "@/shared/types";
+import { formatCurrency } from "@/shared/lib/utils";
 
 interface SalesByCategoryChartProps {
-  data: SalesByCategory[]
-  isLoading?: boolean
+  data: SalesByCategory[];
+  isLoading?: boolean;
 }
 
-export function SalesByCategoryChart({ data, isLoading }: SalesByCategoryChartProps) {
+export function SalesByCategoryChart({
+  data,
+  isLoading,
+}: SalesByCategoryChartProps) {
   if (isLoading) {
     return (
       <Card>
@@ -31,7 +39,7 @@ export function SalesByCategoryChart({ data, isLoading }: SalesByCategoryChartPr
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!data || !Array.isArray(data) || data.length === 0) {
@@ -47,14 +55,16 @@ export function SalesByCategoryChart({ data, isLoading }: SalesByCategoryChartPr
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
+
+  const primaryColor = "hsl(var(--primary))";
 
   const chartData = data.map((item) => ({
     name: item.category.name,
     receita: item.revenue,
     quantidade: item.count,
-  }))
+  }));
 
   return (
     <Card>
@@ -65,47 +75,60 @@ export function SalesByCategoryChart({ data, isLoading }: SalesByCategoryChartPr
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="name"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px", fill: "currentColor" }}
               angle={-45}
               textAnchor="end"
               height={80}
+              axisLine={false}
+              tickLine={false}
             />
-            <YAxis yAxisId="left" style={{ fontSize: '12px' }} />
+            <YAxis
+              yAxisId="left"
+              style={{ fontSize: "12px", fill: "currentColor" }}
+              axisLine={false}
+              tickLine={false}
+            />
             <YAxis
               yAxisId="right"
               orientation="right"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: "12px", fill: "currentColor" }}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
               formatter={(value: number, name: string) => {
-                if (name === 'receita') {
-                  return [formatCurrency(value), 'Receita']
+                if (name === "receita") {
+                  return [formatCurrency(value), "Receita"];
                 }
-                return [value, 'Quantidade']
+                return [value, "Quantidade"];
               }}
             />
-            <Legend />
             <Bar
               yAxisId="left"
               dataKey="receita"
-              fill="hsl(var(--primary))"
               name="Receita"
+              fill={primaryColor}
               radius={[4, 4, 0, 0]}
+              maxBarSize={40}
             />
             <Bar
               yAxisId="right"
               dataKey="quantidade"
-              fill="hsl(var(--accent))"
               name="Quantidade"
+              fill={primaryColor}
               radius={[4, 4, 0, 0]}
+              maxBarSize={40}
             />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
-

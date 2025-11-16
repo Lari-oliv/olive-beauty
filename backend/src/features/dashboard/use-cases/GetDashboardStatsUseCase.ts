@@ -23,7 +23,7 @@ export class GetDashboardStatsUseCase {
     return {
       totalRevenue: totalRevenue._sum.total || 0,
       totalOrders,
-      totalCustomers,
+      totalUsers: totalCustomers,
       totalProducts,
     };
   }
