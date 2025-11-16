@@ -37,6 +37,9 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    /* Neon colors for charts */
+    --neon-pink: 330 100% 60%; /* #ff006e */
+    --neon-blue: 180 100% 50%; /* #00f5ff */
   }
 
   .dark {
@@ -65,6 +68,9 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    /* Neon colors for charts - brighter in dark mode */
+    --neon-pink: 330 100% 70%; /* Brighter pink for dark mode */
+    --neon-blue: 180 100% 60%; /* Brighter blue for dark mode */
   }
 }
 
@@ -152,6 +158,32 @@
 
   .border-sidebar-border {
     border-color: hsl(var(--sidebar-border));
+  }
+}
+
+@layer utilities {
+  .text-neon-pink {
+    color: hsl(var(--neon-pink));
+  }
+  
+  .text-neon-blue {
+    color: hsl(var(--neon-blue));
+  }
+  
+  .fill-neon-pink {
+    fill: hsl(var(--neon-pink));
+  }
+  
+  .fill-neon-blue {
+    fill: hsl(var(--neon-blue));
+  }
+  
+  .stroke-neon-pink {
+    stroke: hsl(var(--neon-pink));
+  }
+  
+  .stroke-neon-blue {
+    stroke: hsl(var(--neon-blue));
   }
 }
 

@@ -30,9 +30,15 @@ export function OrderDetailPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    console.log('OrderDetailPage mounted - orderId:', orderId)
     if (orderId) {
       loadOrder()
+    } else {
+      console.error('OrderDetailPage - orderId is missing!')
+      setError('ID do pedido não encontrado')
+      setIsLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId])
 
   const loadOrder = async () => {
