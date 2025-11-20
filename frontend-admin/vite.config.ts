@@ -17,6 +17,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // Type checking is done by Vite during build
+    // The TanStackRouterVite plugin generates routeTree.gen.ts before build
+  },
   server: {
     port: 5174,
     watch: {
