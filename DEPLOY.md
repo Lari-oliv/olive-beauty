@@ -59,7 +59,7 @@ nginx -v
 
 ```bash
 cd /var/www
-sudo git clone https://github.com/seu-usuario/olive-beauty.git
+sudo git clone https://github.com/Lari-oliv/olive-beauty.git
 # ou faça upload via SFTP/FTP
 cd olive-beauty
 ```
@@ -75,6 +75,7 @@ nano .env.production
 ```
 
 **Importante:** Configure:
+
 - `DATABASE_URL` com as credenciais do PostgreSQL
 - `JWT_SECRET` com uma string aleatória segura
 - `POSTGRES_PASSWORD` com uma senha forte
@@ -152,6 +153,7 @@ sudo nano /etc/nginx/sites-available/olive-beauty
 ```
 
 **Ajustar:**
+
 - `server_name` com seu domínio (ou IP se não tiver domínio)
 - Descomentar configuração de HTTPS se tiver certificado SSL
 
@@ -368,6 +370,7 @@ Os containers já estão configurados com `restart: unless-stopped` no docker-co
 ## 📞 Suporte
 
 Em caso de problemas:
+
 1. Verifique os logs: `docker-compose -f docker-compose.prod.yml logs`
 2. Verifique status dos containers: `docker ps`
 3. Verifique configuração do Nginx: `sudo nginx -t`
@@ -376,4 +379,3 @@ Em caso de problemas:
 ---
 
 **Boa sorte com o deploy! 🚀**
-

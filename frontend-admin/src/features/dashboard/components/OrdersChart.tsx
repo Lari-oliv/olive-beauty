@@ -12,7 +12,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import { TimeSeriesData } from "@/shared/types";
 

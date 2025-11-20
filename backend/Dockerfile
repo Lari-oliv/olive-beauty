@@ -28,9 +28,6 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma
 
-# Install only production dependencies
-RUN npm ci --only=production
-
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma

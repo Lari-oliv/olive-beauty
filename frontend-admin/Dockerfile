@@ -7,12 +7,17 @@ WORKDIR /app
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+# Atualizar npm e limpar cache
+RUN npm cache clean --force
+
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-# Usa npm install ao invés de npm ci para ser mais tolerante
-RUN npm install --legacy-peer-deps
+# Install dependencies com tratamento de erro
+# Tenta npm ci primeiro, se falhar usa npm install
+RUN npm ci --legacy-peer-deps || \
+    (echo "npm ci falhou, tentando npm install..." && \
+    npm install --legacy-peer-deps)
 
 # Copy source code
 COPY . .

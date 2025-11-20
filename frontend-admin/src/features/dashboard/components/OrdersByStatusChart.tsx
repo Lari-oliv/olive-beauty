@@ -5,28 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { OrdersByStatus, OrderStatus } from "@/shared/types";
 
 interface OrdersByStatusChartProps {
   data: OrdersByStatus[];
   isLoading?: boolean;
 }
-
-const STATUS_COLORS: Record<OrderStatus, string> = {
-  PENDING: "hsl(var(--primary))",
-  PROCESSING: "hsl(var(--primary))",
-  SENT: "hsl(var(--primary))",
-  DELIVERED: "hsl(var(--primary))",
-  CANCELLED: "hsl(var(--primary))",
-};
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Pendente",

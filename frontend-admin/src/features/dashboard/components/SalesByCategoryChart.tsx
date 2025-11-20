@@ -12,7 +12,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import { SalesByCategory } from "@/shared/types";
 import { formatCurrency } from "@/shared/lib/utils";
