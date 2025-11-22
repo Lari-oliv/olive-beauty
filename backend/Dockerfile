@@ -3,6 +3,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Update npm to latest version and clear cache
+RUN npm install -g npm@latest && npm cache clean --force
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma
@@ -23,6 +26,9 @@ RUN npm run build
 FROM node:18-alpine AS production
 
 WORKDIR /app
+
+# Update npm to latest version
+RUN npm install -g npm@latest
 
 # Copy package files
 COPY package*.json ./
