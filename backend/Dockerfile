@@ -1,7 +1,12 @@
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:18-slim AS builder
 
 WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Update npm to compatible version (npm 9.x for Node 18) and clear cache
 RUN npm install -g npm@9 && npm cache clean --force
@@ -23,12 +28,14 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine AS production
+FROM node:18-slim AS production
 
 WORKDIR /app
 
-# Install required libraries for Prisma (OpenSSL 1.1)
-RUN apk add --no-cache openssl1.1-compat openssl libc6-compat
+# Install required libraries for Prisma (OpenSSL)
+RUN apt-get update && apt-get install -y \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Update npm to compatible version (npm 9.x for Node 18)
 RUN npm install -g npm@9
