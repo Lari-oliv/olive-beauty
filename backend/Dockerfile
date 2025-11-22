@@ -34,10 +34,11 @@ RUN npm install -g npm@9
 COPY package.json ./
 COPY prisma ./prisma
 
+# Copy all node_modules from builder (already installed and tested)
+COPY --from=builder /app/node_modules ./node_modules
+
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Expose port
 EXPOSE 3000
