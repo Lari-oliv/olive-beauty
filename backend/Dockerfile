@@ -7,11 +7,11 @@ WORKDIR /app
 RUN npm install -g npm@9 && npm cache clean --force
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json ./
 COPY prisma ./prisma
 
-# Install dependencies with fallback
-RUN npm ci || (echo "npm ci failed, trying npm install..." && npm install)
+# Install dependencies (npm install works with or without package-lock.json)
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -31,7 +31,7 @@ WORKDIR /app
 RUN npm install -g npm@9
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json ./
 COPY prisma ./prisma
 
 # Copy built files from builder
