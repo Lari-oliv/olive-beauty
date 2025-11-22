@@ -152,10 +152,102 @@ sudo cp nginx.conf /etc/nginx/sites-available/olive-beauty
 sudo nano /etc/nginx/sites-available/olive-beauty
 ```
 
-**Ajustar:**
+**Ajustar os subdomínios:**
 
-- `server_name` com seu domínio (ou IP se não tiver domínio)
+A configuração usa **3 subdomínios separados**:
+
+- `api.seu-dominio.com` - Backend/API
+- `admin.seu-dominio.com` - Frontend Admin
+- `seu-dominio.com` ou `shop.seu-dominio.com` - Frontend E-commerce
+
+**Substitua `seu-dominio.com` pelos seus domínios reais em todos os blocos `server`:**
+
+1. **API Backend** (linha ~20):
+
+   ```nginx
+   server_name api.seu-dominio.com;
+   ```
+
+   → `server_name api.seudominio.com.br;`
+
+2. **Frontend Admin** (linha ~70):
+
+   ```nginx
+   server_name admin.seu-dominio.com;
+   ```
+
+   → `server_name admin.seudominio.com.br;`
+
+3. **Frontend E-commerce** (linha ~120):
+   ```nginx
+   server_name seu-dominio.com www.seu-dominio.com shop.seu-dominio.com;
+   ```
+   → `server_name seudominio.com.br www.seudominio.com.br shop.seudominio.com.br;`
+
+**Importante:**
+
+- Se não tiver domínio, use o IP da VPS (menos recomendado)
 - Descomentar configuração de HTTPS se tiver certificado SSL
+- Após editar, salve o arquivo (Ctrl+X, Y, Enter no nano)
+
+### 4.2.1 Configurar DNS (se usar subdomínios)
+
+Se você está usando subdomínios, configure os registros DNS no seu provedor de domínio:
+
+**Registros A (apontam para o IP da sua VPS):**
+
+```
+api.seu-dominio.com     → IP_DA_VPS
+admin.seu-dominio.com   → IP_DA_VPS
+seu-dominio.com         → IP_DA_VPS
+www.seu-dominio.com     → IP_DA_VPS (opcional)
+```
+
+**Exemplo com Cloudflare, Namecheap, GoDaddy, etc:**
+
+- Tipo: `A`
+- Nome: `api` (ou `admin`, ou deixar vazio para domínio principal)
+- Valor: `SEU_IP_DA_VPS`
+- TTL: `Auto` ou `3600`
+
+**Verificar se os DNS estão propagados:**
+
+```bash
+# Verificar se os subdomínios estão apontando corretamente
+dig api.seu-dominio.com
+dig admin.seu-dominio.com
+dig seu-dominio.com
+```
+
+### 4.2.2 Atualizar variáveis de ambiente do frontend
+
+Após configurar os subdomínios, atualize as variáveis de ambiente:
+
+**No arquivo `.env.production` ou nas variáveis do Docker Compose:**
+
+```bash
+# Para frontend-admin
+VITE_API_URL=http://api.seu-dominio.com
+
+# Para frontend-ecommerce
+VITE_API_URL=http://api.seu-dominio.com
+```
+
+**Ou no `docker-compose.prod.yml`:**
+
+```yaml
+frontend-admin:
+  build:
+    args:
+      VITE_API_URL: http://api.seu-dominio.com # Ajuste aqui
+
+frontend-ecommerce:
+  build:
+    args:
+      VITE_API_URL: http://api.seu-dominio.com # Ajuste aqui
+```
+
+**Importante:** Se usar HTTPS, troque `http://` por `https://` nas URLs acima.
 
 ### 4.3 Ativar site
 
@@ -193,6 +285,32 @@ sudo apt install certbot python3-certbot-nginx -y
 
 ### 5.2 Obter certificado SSL
 
+**Se usar subdomínios separados:**
+
+```bash
+# Obter certificado para todos os subdomínios
+sudo certbot --nginx \
+  -d api.seu-dominio.com \
+  -d admin.seu-dominio.com \
+  -d seu-dominio.com \
+  -d www.seu-dominio.com
+```
+
+**Ou obter certificados separados (se preferir):**
+
+```bash
+# Certificado para API
+sudo certbot --nginx -d api.seu-dominio.com
+
+# Certificado para Admin
+sudo certbot --nginx -d admin.seu-dominio.com
+
+# Certificado para E-commerce
+sudo certbot --nginx -d seu-dominio.com -d www.seu-dominio.com
+```
+
+**Se usar um único domínio (configuração alternativa):**
+
 ```bash
 sudo certbot --nginx -d seu-dominio.com -d www.seu-dominio.com
 ```
@@ -223,6 +341,14 @@ docker-compose -f docker-compose.prod.yml logs frontend-ecommerce
 ```
 
 ### 6.2 Acessar aplicação
+
+**Se usar subdomínios (configuração atual):**
+
+- **E-commerce:** `http://seu-dominio.com` ou `https://seu-dominio.com` (com SSL)
+- **Admin:** `http://admin.seu-dominio.com` ou `https://admin.seu-dominio.com` (com SSL)
+- **API:** `http://api.seu-dominio.com/health` ou `https://api.seu-dominio.com/health` (com SSL)
+
+**Se usar um único domínio (configuração alternativa):**
 
 - **E-commerce:** `http://seu-dominio.com` ou `http://seu-ip`
 - **Admin:** `http://seu-dominio.com/admin` ou `http://seu-ip/admin`
