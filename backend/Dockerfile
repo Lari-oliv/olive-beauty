@@ -27,6 +27,9 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
+# Install required libraries for Prisma (OpenSSL)
+RUN apk add --no-cache openssl1.1-compat
+
 # Update npm to compatible version (npm 9.x for Node 18)
 RUN npm install -g npm@9
 
