@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from '@tanstack/react-router'
 import { useAuthStore } from '@/shared/stores'
+import { useToastContext } from '@/shared/components/ToastProvider'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { checkAndExecutePendingAction } from '@/shared/utils/executePendingAction'
 
 export function RegisterPage() {
   const navigate = useNavigate()
   const { register, isLoading, error, clearError, isAuthenticated } = useAuthStore()
+  const { success, error: showError } = useToastContext()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,9 +23,29 @@ export function RegisterPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate({ to: '/' })
+      handlePostLogin()
     }
   }, [isAuthenticated, navigate])
+
+  const handlePostLogin = async () => {
+    // Check and execute pending action
+    const redirectUrl = await checkAndExecutePendingAction(
+      (message) => success(message),
+      (message) => showError(message)
+    )
+
+    // Redirect to appropriate page
+    if (redirectUrl) {
+      // Use window.location for full URLs, navigate for routes
+      if (redirectUrl.startsWith('http')) {
+        window.location.href = redirectUrl
+      } else {
+        navigate({ to: redirectUrl as any })
+      }
+    } else {
+      navigate({ to: '/' })
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,8 +70,7 @@ export function RegisterPage() {
         password: formData.password,
         name: formData.name || undefined,
       })
-      // Redirect to home after successful registration
-      navigate({ to: '/' })
+      // handlePostLogin will be called by useEffect when isAuthenticated becomes true
     } catch (err) {
       setLocalError('Erro ao registrar. Tente novamente.')
     }

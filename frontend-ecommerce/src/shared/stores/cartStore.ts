@@ -14,6 +14,7 @@ interface CartState {
   removeItem: (itemId: string) => Promise<void>
   clearCart: () => Promise<void>
   clearError: () => void
+  lastAddedItemId: string | null
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
@@ -21,6 +22,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   isLoading: false,
   error: null,
   itemCount: 0,
+  lastAddedItemId: null,
 
   getCart: async () => {
     set({ isLoading: true, error: null })
@@ -57,11 +59,14 @@ export const useCartStore = create<CartState>((set, get) => ({
 
       if (response.data.status === 'success' && response.data.data) {
         const cart = response.data.data
+        // Find the newly added item (last item in the array)
+        const lastItem = cart.items[cart.items.length - 1]
         set({
           cart,
           itemCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
           isLoading: false,
           error: null,
+          lastAddedItemId: lastItem?.id || null,
         })
       } else {
         throw new Error(response.data.message || 'Erro ao adicionar item')

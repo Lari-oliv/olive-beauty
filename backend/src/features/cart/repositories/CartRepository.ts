@@ -31,6 +31,9 @@ export class CartRepository {
             },
             productVariant: true,
           },
+          orderBy: {
+            createdAt: 'desc', // Newest items first
+          },
         },
       },
     });
@@ -48,6 +51,9 @@ export class CartRepository {
               },
             },
             productVariant: true,
+          },
+          orderBy: {
+            createdAt: 'desc', // Newest items first
           },
         },
       },

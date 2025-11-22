@@ -29,6 +29,23 @@ export function FavoriteProductCard({ favorite, onRemove }: FavoriteProductCardP
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    const { useAuthStore } = await import('@/shared/stores')
+    const { isAuthenticated } = useAuthStore.getState()
+    if (!isAuthenticated) {
+      const { savePendingAction } = await import('@/shared/utils/pendingActions')
+      const variant = product.variants?.[0]
+      savePendingAction({
+        type: 'addToCart',
+        productId: product.id,
+        productVariantId: variant?.id,
+        quantity: 1,
+        url: window.location.pathname,
+      })
+      window.location.href = '/login'
+      return
+    }
+
     setIsAddingToCart(true)
     try {
       // Use first variant if available, otherwise use product without variant
@@ -38,6 +55,9 @@ export function FavoriteProductCard({ favorite, onRemove }: FavoriteProductCardP
         productVariantId: variant?.id,
         quantity: 1,
       })
+      // Open cart sheet after successful add
+      const { useCartSheetStore } = await import('@/shared/stores')
+      useCartSheetStore.getState().open()
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error)
     } finally {

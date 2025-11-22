@@ -41,7 +41,31 @@ const colorMap: Record<string, string> = {
 }
 
 function getColorValue(color: string): string {
-  const normalized = color.toLowerCase().trim()
+  const trimmed = color.trim()
+  
+  // Se já é um código hex válido, usar diretamente
+  if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(trimmed)) {
+    // Expandir formato curto #RGB para #RRGGBB
+    if (trimmed.length === 4) {
+      return `#${trimmed[1]}${trimmed[1]}${trimmed[2]}${trimmed[2]}${trimmed[3]}${trimmed[3]}`
+    }
+    return trimmed
+  }
+  
+  // Se é RGB, converter para hex
+  const rgbMatch = trimmed.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+  if (rgbMatch) {
+    const r = parseInt(rgbMatch[1])
+    const g = parseInt(rgbMatch[2])
+    const b = parseInt(rgbMatch[3])
+    return `#${[r, g, b].map(x => {
+      const hex = x.toString(16)
+      return hex.length === 1 ? '0' + hex : hex
+    }).join('')}`
+  }
+  
+  // Se não é código de cor, tentar mapeamento de nomes
+  const normalized = trimmed.toLowerCase()
   return colorMap[normalized] || '#cccccc'
 }
 
@@ -237,7 +261,7 @@ export function VariantSelector({
             <h3 className="text-sm font-medium text-foreground capitalize">
               {attributeKey}:
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {items.map(({ value, variant, isAvailable }) => {
                 const isSelected = selectedValue === value
                 const isOutOfStock = variant.stock === 0
@@ -258,8 +282,8 @@ export function VariantSelector({
                     className={cn(
                       'relative transition-colors',
                       isColor
-                        ? 'w-10 h-10 rounded-full border flex items-center justify-center'
-                        : 'px-3 py-1.5 rounded border text-sm min-w-[60px]',
+                        ? 'w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center shrink-0'
+                        : 'px-2 sm:px-3 py-1.5 rounded border text-xs sm:text-sm min-w-[60px]',
                       isSelected
                         ? isColor
                           ? 'border-primary ring-1 ring-primary/30'
@@ -288,7 +312,7 @@ export function VariantSelector({
                       <>
                         {isSelected && (
                           <svg
-                            className="w-5 h-5 text-white"
+                            className="w-4 h-4 sm:w-5 sm:h-5 text-white drop-shadow-lg"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -304,7 +328,7 @@ export function VariantSelector({
                         {isOutOfStock && (
                           <div className="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center">
                             <svg
-                              className="w-4 h-4 text-white"
+                              className="w-3 h-3 sm:w-4 sm:h-4 text-white"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"

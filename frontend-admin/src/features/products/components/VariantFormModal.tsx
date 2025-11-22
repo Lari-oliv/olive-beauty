@@ -176,48 +176,120 @@ export function VariantFormModal({
                 Atributos <span className="text-destructive">*</span>
               </Label>
               <div className="space-y-2">
-                {attributes.map((attr, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      placeholder="Ex: Cor"
-                      value={attr.key}
-                      onChange={(e) => updateAttribute(index, 'key', e.target.value)}
-                      disabled={isLoading}
-                      className="flex-1"
-                    />
-                    <Input
-                      placeholder="Ex: Vermelho"
-                      value={attr.value}
-                      onChange={(e) => updateAttribute(index, 'value', e.target.value)}
-                      disabled={isLoading}
-                      className="flex-1"
-                    />
-                    {attributes.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => removeAttribute(index)}
-                        disabled={isLoading}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M18 6 6 18" />
-                          <path d="M6 6l12 12" />
-                        </svg>
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                {attributes.map((attr, index) => {
+                  const isColorAttribute = attr.key.toLowerCase().trim() === 'cor' || 
+                                           attr.key.toLowerCase().trim() === 'color' ||
+                                           attr.key.toLowerCase().trim() === 'colour'
+                  
+                  // Função para validar se é um código de cor válido (hex ou rgb)
+                  const isValidColorCode = (value: string): boolean => {
+                    const trimmed = value.trim()
+                    // Hex: #RRGGBB ou #RGB
+                    if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(trimmed)) {
+                      return true
+                    }
+                    // RGB: rgb(r, g, b) ou rgba(r, g, b, a)
+                    if (/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/.test(trimmed)) {
+                      return true
+                    }
+                    return false
+                  }
+
+                  // Converter RGB para hex se necessário
+                  const convertRgbToHex = (value: string): string => {
+                    const trimmed = value.trim()
+                    // Se já é hex, retornar
+                    if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(trimmed)) {
+                      return trimmed
+                    }
+                    // Converter RGB para hex
+                    const rgbMatch = trimmed.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+                    if (rgbMatch) {
+                      const r = parseInt(rgbMatch[1])
+                      const g = parseInt(rgbMatch[2])
+                      const b = parseInt(rgbMatch[3])
+                      return `#${[r, g, b].map(x => {
+                        const hex = x.toString(16)
+                        return hex.length === 1 ? '0' + hex : hex
+                      }).join('')}`
+                    }
+                    return trimmed
+                  }
+
+                  return (
+                    <div key={index} className="space-y-2">
+                      <div className="flex gap-2 items-start">
+                        <Input
+                          placeholder="Ex: Cor"
+                          value={attr.key}
+                          onChange={(e) => updateAttribute(index, 'key', e.target.value)}
+                          disabled={isLoading}
+                          className="flex-1"
+                        />
+                        {isColorAttribute ? (
+                          <div className="flex gap-2 flex-1">
+                            <div className="relative">
+                              <Input
+                                type="color"
+                                value={isValidColorCode(attr.value) ? convertRgbToHex(attr.value) : '#cccccc'}
+                                onChange={(e) => {
+                                  updateAttribute(index, 'value', e.target.value.toUpperCase())
+                                }}
+                                disabled={isLoading}
+                                className="h-10 w-20 cursor-pointer p-1"
+                                title="Selecione a cor"
+                              />
+                            </div>
+                            <Input
+                              placeholder="Ex: #FF0000 ou rgb(255,0,0)"
+                              value={attr.value}
+                              onChange={(e) => updateAttribute(index, 'value', e.target.value)}
+                              disabled={isLoading}
+                              className="flex-1"
+                            />
+                          </div>
+                        ) : (
+                          <Input
+                            placeholder="Ex: Vermelho"
+                            value={attr.value}
+                            onChange={(e) => updateAttribute(index, 'value', e.target.value)}
+                            disabled={isLoading}
+                            className="flex-1"
+                          />
+                        )}
+                        {attributes.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => removeAttribute(index)}
+                            disabled={isLoading}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M18 6 6 18" />
+                              <path d="M6 6l12 12" />
+                            </svg>
+                          </Button>
+                        )}
+                      </div>
+                      {isColorAttribute && (
+                        <p className="text-xs text-muted-foreground ml-0">
+                          💡 Use o seletor de cor acima ou digite o código RGB/hex (ex: #FF0000, rgb(255,0,0))
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
                 <Button
                   type="button"
                   variant="outline"

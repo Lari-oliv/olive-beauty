@@ -48,7 +48,11 @@ export class ProductRepository {
       where: { id },
       include: {
         category: true,
-        variants: true,
+        variants: {
+          include: {
+            images: true,
+          },
+        },
         images: true,
       },
     });
@@ -93,7 +97,9 @@ export class ProductRepository {
           take: 1,
         },
         variants: {
-          take: 1,
+          include: {
+            images: true,
+          },
         },
       },
       orderBy,

@@ -37,9 +37,10 @@ apiClient.interceptors.response.use(
     // Handle 401 Unauthorized - Clear token and redirect to login
     if (status === 401) {
       // Prevent multiple redirects
-      if (currentPath === '/login' || currentPath.startsWith('/login')) {
+      if (currentPath === '/login' || currentPath.startsWith('/login') || currentPath === '/register') {
         return Promise.reject(error)
       }
+      
       
       localStorage.removeItem('token')
       localStorage.removeItem('user')

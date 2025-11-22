@@ -3,7 +3,7 @@ import { Product } from '@/shared/types'
 import { Card, CardContent, CardFooter } from './ui/card'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
-import { useCartStore } from '@/shared/stores'
+import { useCartStore, useAuthStore, useCartSheetStore } from '@/shared/stores'
 import { useFavoritesStore } from '@/shared/stores'
 import { useState } from 'react'
 import { calculateInstallment, getStockStatus, formatCurrency } from '@/shared/lib/utils'
@@ -80,6 +80,7 @@ function RatingStars({ rating, reviewCount }: { rating: number; reviewCount: num
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem, isLoading: cartLoading } = useCartStore()
   const { isFavorite, addFavorite, removeFavorite, isLoading: favoriteLoading } = useFavoritesStore()
+  const { open: openCartSheet } = useCartSheetStore()
   const [isAddingToCart, setIsAddingToCart] = useState(false)
 
   const coverImage = product.images?.find(img => img.isCover) || product.images?.[0]
@@ -104,6 +105,19 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    const { isAuthenticated } = useAuthStore.getState()
+    if (!isAuthenticated) {
+      const { savePendingAction } = await import('@/shared/utils/pendingActions')
+      savePendingAction({
+        type: 'addToFavorites',
+        productId: product.id,
+        url: window.location.pathname,
+      })
+      window.location.href = '/login'
+      return
+    }
+
     try {
       if (isFav) {
         await removeFavorite(product.id)
@@ -118,6 +132,22 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    const { isAuthenticated } = useAuthStore.getState()
+    if (!isAuthenticated) {
+      const { savePendingAction } = await import('@/shared/utils/pendingActions')
+      const variant = product.variants?.[0]
+      savePendingAction({
+        type: 'addToCart',
+        productId: product.id,
+        productVariantId: variant?.id,
+        quantity: 1,
+        url: window.location.pathname,
+      })
+      window.location.href = '/login'
+      return
+    }
+
     setIsAddingToCart(true)
     try {
       const variant = product.variants?.[0]
@@ -126,6 +156,8 @@ export function ProductCard({ product }: ProductCardProps) {
         productVariantId: variant?.id,
         quantity: 1,
       })
+      // Open cart sheet after successful add
+      openCartSheet()
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error)
     } finally {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from '@tanstack/react-router'
 import { Product, ProductVariant, ProductImage } from '@/shared/types'
 import { productsApi } from '@/api/endpoints/products'
-import { useCartStore } from '@/shared/stores'
+import { useCartStore, useAuthStore, useCartSheetStore } from '@/shared/stores'
 import { useFavoritesStore } from '@/shared/stores'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
@@ -20,6 +20,8 @@ export function ProductDetailPage() {
   const navigate = useNavigate()
   const { addItem, isLoading: cartLoading } = useCartStore()
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore()
+  const { isAuthenticated } = useAuthStore()
+  const { open: openCartSheet } = useCartSheetStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
@@ -171,6 +173,19 @@ export function ProductDetailPage() {
   }, [product, selectedVariant])
 
   const handleToggleFavorite = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Save pending action and redirect to login
+      const { savePendingAction } = await import('@/shared/utils/pendingActions')
+      savePendingAction({
+        type: 'addToFavorites',
+        productId: productId,
+        url: window.location.pathname,
+      })
+      navigate({ to: '/login' })
+      return
+    }
+
     try {
       if (isFavorite(productId)) {
         await removeFavorite(productId)
@@ -185,6 +200,21 @@ export function ProductDetailPage() {
   const handleAddToCart = async () => {
     if (!product) return
 
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Save pending action and redirect to login
+      const { savePendingAction } = await import('@/shared/utils/pendingActions')
+      savePendingAction({
+        type: 'addToCart',
+        productId: product.id,
+        productVariantId: selectedVariant?.id,
+        quantity,
+        url: window.location.pathname,
+      })
+      navigate({ to: '/login' })
+      return
+    }
+
     setIsAddingToCart(true)
     try {
       await addItem({
@@ -192,6 +222,8 @@ export function ProductDetailPage() {
         productVariantId: selectedVariant?.id,
         quantity,
       })
+      // Open cart sheet after successful add
+      openCartSheet()
     } catch (error) {
       console.error('Erro ao adicionar ao carrinho:', error)
     } finally {
@@ -200,11 +232,39 @@ export function ProductDetailPage() {
   }
 
   const handleBuyNow = async () => {
-    await handleAddToCart()
-    // Navegar para o carrinho após adicionar
-    setTimeout(() => {
-      navigate({ to: '/cart' })
-    }, 500)
+    if (!product) return
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Save pending action and redirect to login
+      const { savePendingAction } = await import('@/shared/utils/pendingActions')
+      savePendingAction({
+        type: 'buyNow',
+        productId: product.id,
+        productVariantId: selectedVariant?.id,
+        quantity,
+        url: window.location.pathname,
+      })
+      navigate({ to: '/login' })
+      return
+    }
+
+    setIsAddingToCart(true)
+    try {
+      await addItem({
+        productId: product.id,
+        productVariantId: selectedVariant?.id,
+        quantity,
+      })
+      // Navegar para o carrinho após adicionar
+      setTimeout(() => {
+        navigate({ to: '/cart' })
+      }, 500)
+    } catch (error) {
+      console.error('Erro ao adicionar ao carrinho:', error)
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   const handleSelectVariant = (variant: ProductVariant) => {
@@ -281,11 +341,11 @@ export function ProductDetailPage() {
   const freeShipping = hasFreeShipping(currentPrice)
 
   return (
-    <div className="container py-6 md:py-8 space-y-8 max-w-7xl mx-auto">
+    <div className="container py-4 sm:py-6 md:py-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto px-4 sm:px-6">
       {/* Layout Principal - Estilo Mercado Livre */}
-      <div className="grid md:grid-cols-[1.2fr_1fr] gap-6 lg:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-4 sm:gap-6 lg:gap-12">
         {/* Coluna Esquerda - Galeria de Imagens (60% largura desktop) */}
-        <div className="sticky top-4 self-start">
+        <div className="md:sticky md:top-4 md:self-start">
           <ProductImageGallery
             images={displayedImages} // Use filtered images based on selected variant
             productName={product.name}
@@ -294,7 +354,7 @@ export function ProductDetailPage() {
         </div>
 
         {/* Coluna Direita - Informações do Produto (40% largura desktop) */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <ProductInfo
             product={product}
             currentPrice={currentPrice}

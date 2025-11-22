@@ -30,6 +30,7 @@ import { Product, CreateProductDTO, UpdateProductDTO, Category } from '@/shared/
 import { ImageManager } from './ImageManager'
 import { VariantFormModal, ProductVariant } from './VariantFormModal'
 import { formatCurrency } from '@/shared/lib/utils'
+import { productsApi } from '@/api/endpoints/products'
 
 interface ProductFormModalProps {
   open: boolean
@@ -67,35 +68,60 @@ export function ProductFormModal({
   const [isVariantModalOpen, setIsVariantModalOpen] = useState(false)
   const [editingVariantIndex, setEditingVariantIndex] = useState<number | null>(null)
   const [removeVariantIndex, setRemoveVariantIndex] = useState<number | null>(null)
+  const [fullProduct, setFullProduct] = useState<Product | null>(null)
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false)
 
   useEffect(() => {
     console.log('variants', variants)
   }, [variants]);
 
+  // Fetch full product data when editing
   useEffect(() => {
-    if (product) {
+    if (open && product?.id) {
+      setIsLoadingProduct(true)
+      productsApi
+        .getById(product.id)
+        .then((data) => {
+          setFullProduct(data)
+        })
+        .catch((error) => {
+          console.error('Erro ao carregar produto completo:', error)
+          // Fallback para o produto da lista se houver erro
+          setFullProduct(product)
+        })
+        .finally(() => {
+          setIsLoadingProduct(false)
+        })
+    } else if (!open) {
+      setFullProduct(null)
+    }
+  }, [open, product])
+
+  useEffect(() => {
+    const productToUse = fullProduct || product
+    if (productToUse) {
       setFormData({
-        name: product.name || '',
-        description: product.description || '',
-        basePrice: product.basePrice?.toString() || '',
-        brand: product.brand || '',
-        categoryId: product.category?.id || '',
+        name: productToUse.name || '',
+        description: productToUse.description || '',
+        basePrice: productToUse.basePrice?.toString() || '',
+        brand: productToUse.brand || '',
+        categoryId: productToUse.category?.id || '',
       })
       setImages(
-        product.images?.map((img) => ({
+        productToUse.images?.filter(img => !img.productVariantId).map((img) => ({
           url: img.url,
           isCover: img.isCover,
         })) || []
       )
       setVariants(
-        product.variants?.map((v) => ({
+        productToUse.variants?.map((v) => ({
           attributes: typeof v.attributes === 'string' ? JSON.parse(v.attributes) : v.attributes,
           price: v.price,
           stock: v.stock,
-          images: v.images?.filter(img => img.productVariantId === v.id).map(img => ({
+          images: v.images && v.images.length > 0 ? v.images.map(img => ({
             url: img.url,
             isCover: img.isCover
-          })) || undefined, // Include variant images
+          })) : undefined, // Include variant images
         })) || []
       )
     } else {
@@ -110,7 +136,7 @@ export function ProductFormModal({
       setVariants([])
     }
     setErrors({})
-  }, [product, open])
+  }, [fullProduct, product])
 
   const validate = (): boolean => {
     const newErrors: { name?: string; basePrice?: string; categoryId?: string } = {}
