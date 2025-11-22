@@ -3,8 +3,8 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Update npm to latest version and clear cache
-RUN npm install -g npm@latest && npm cache clean --force
+# Update npm to compatible version (npm 9.x for Node 18) and clear cache
+RUN npm install -g npm@9 && npm cache clean --force
 
 # Copy package files
 COPY package*.json ./
@@ -27,8 +27,8 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Update npm to latest version
-RUN npm install -g npm@latest
+# Update npm to compatible version (npm 9.x for Node 18)
+RUN npm install -g npm@9
 
 # Copy package files
 COPY package*.json ./
