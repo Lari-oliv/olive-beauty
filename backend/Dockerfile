@@ -27,8 +27,8 @@ FROM node:18-alpine AS production
 
 WORKDIR /app
 
-# Install required libraries for Prisma (OpenSSL)
-RUN apk add --no-cache openssl1.1-compat
+# Install required libraries for Prisma (OpenSSL 1.1)
+RUN apk add --no-cache openssl1.1-compat openssl libc6-compat
 
 # Update npm to compatible version (npm 9.x for Node 18)
 RUN npm install -g npm@9
@@ -39,6 +39,9 @@ COPY prisma ./prisma
 
 # Copy all node_modules from builder (already installed and tested)
 COPY --from=builder /app/node_modules ./node_modules
+
+# Regenerate Prisma Client for the production environment
+RUN npx prisma generate
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
