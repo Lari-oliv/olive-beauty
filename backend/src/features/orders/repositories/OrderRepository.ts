@@ -1,4 +1,4 @@
-import { PrismaClient, Order } from '@prisma/client';
+import { PrismaClient, Order, OrderStatus } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -87,7 +87,7 @@ export class OrderRepository {
   async updateStatus(id: string, status: string): Promise<Order> {
     return prisma.order.update({
       where: { id },
-      data: { status },
+      data: { status: status as OrderStatus },
       include: {
         items: {
           include: {

@@ -16,7 +16,7 @@ export class UpdateCategoryUseCase {
     if (data.name && data.name !== category.name) {
       const allCategories = await this.categoryRepository.findAll();
       const nameExists = allCategories.some(
-        (cat) => cat.id !== id && cat.name.toLowerCase() === data.name.toLowerCase()
+        (cat) => cat.id !== id && cat.name.toLowerCase() === data.name!.toLowerCase()
       );
 
       if (nameExists) {

@@ -1,9 +1,24 @@
-import { PrismaClient, Cart } from '@prisma/client';
+import { PrismaClient, Cart, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+type CartWithItems = Prisma.CartGetPayload<{
+  include: {
+    items: {
+      include: {
+        product: {
+          include: {
+            images: true;
+          };
+        };
+        productVariant: true;
+      };
+    };
+  };
+}>;
+
 export class CartRepository {
-  async findByUserId(userId: string): Promise<Cart | null> {
+  async findByUserId(userId: string): Promise<CartWithItems | null> {
     return prisma.cart.findUnique({
       where: { userId },
       include: {
@@ -21,7 +36,7 @@ export class CartRepository {
     });
   }
 
-  async create(userId: string): Promise<Cart> {
+  async create(userId: string): Promise<CartWithItems> {
     return prisma.cart.create({
       data: { userId },
       include: {
@@ -39,7 +54,7 @@ export class CartRepository {
     });
   }
 
-  async findOrCreate(userId: string): Promise<Cart> {
+  async findOrCreate(userId: string): Promise<CartWithItems> {
     let cart = await this.findByUserId(userId);
 
     if (!cart) {
