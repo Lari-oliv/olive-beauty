@@ -89,7 +89,8 @@ export function HomePage() {
               Bem-vindo à Olive Beauty
             </h1>
             <p className="text-xl md:text-2xl drop-shadow-md">
-              Descubra produtos de beleza e cuidados pessoais de alta qualidade
+            <strong>Onde a natureza encontra o luxo!</strong>
+             <br />Eleve a sua rotina de cuidados
             </p>
             <Link
               to="/products"
